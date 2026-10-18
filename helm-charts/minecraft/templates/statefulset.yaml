@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "minecraft.fullname" . }}
+  labels:
+    {{- include "minecraft.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "minecraft.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "minecraft.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "minecraft.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: minecraft
+          image: "itzg/minecraft-server:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: minecraft
+              containerPort: {{ .Values.minecraft.serverPort }}
+              protocol: TCP
+          env:
+            - name: EULA
+              value: {{ .Values.minecraft.eula | quote }}
+            - name: TYPE
+              value: {{ .Values.minecraft.type | quote }}
+            - name: VERSION
+              value: {{ .Values.minecraft.version | quote }}
+            - name: FORGE_VERSION
+              value: {{ .Values.minecraft.forgeVersion | quote }}
+            - name: INIT_MEMORY
+              value: {{ .Values.minecraft.initMemory | quote }}
+            - name: MAX_MEMORY
+              value: {{ .Values.minecraft.maxMemory | quote }}
+            - name: SERVER_PORT
+              value: {{ .Values.minecraft.serverPort | quote }}
+            - name: LEVEL
+              value: {{ .Values.minecraft.level | quote }}
+            - name: DIFFICULTY
+              value: {{ .Values.minecraft.difficulty | quote }}
+            - name: MODE
+              value: {{ .Values.minecraft.gamemode | quote }}
+            - name: MAX_PLAYERS
+              value: {{ .Values.minecraft.maxPlayers | quote }}
+            - name: VIEW_DISTANCE
+              value: {{ .Values.minecraft.viewDistance | quote }}
+            - name: SIMULATION_DISTANCE
+              value: {{ .Values.minecraft.simulationDistance | quote }}
+            - name: MOTD
+              value: {{ .Values.minecraft.motd | quote }}
+            - name: ONLINE_MODE
+              value: {{ .Values.minecraft.onlineMode | quote }}
+            - name: ENABLE_WHITELIST
+              value: {{ .Values.minecraft.enableWhitelist | quote }}
+            - name: ENABLE_COMMAND_BLOCK
+              value: {{ .Values.minecraft.enableCommandBlock | quote }}
+          startupProbe:
+            exec:
+              command:
+                - mc-monitor
+                - status
+                - --host
+                - localhost
+                - --port
+                - {{ .Values.minecraft.serverPort | quote }}
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+          readinessProbe:
+            exec:
+              command:
+                - mc-monitor
+                - status
+                - --host
+                - localhost
+                - --port
+                - {{ .Values.minecraft.serverPort | quote }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          livenessProbe:
+            exec:
+              command:
+                - mc-monitor
+                - status
+                - --host
+                - localhost
+                - --port
+                - {{ .Values.minecraft.serverPort | quote }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

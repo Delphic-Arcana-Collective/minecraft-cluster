@@ -1,0 +1,61 @@
+# itzg image tag selects the Java runtime. Forge 1.20.1 runs on Java 21.
+image:
+  tag: java21
+  pullPolicy: 
+
+# Node allocatable memory is about 15.5Gi, with about 5Gi already in use.
+# The backup JVM file asked for -Xmx12G; that would fill the node.
+# Heap max is 6G. The container limit leaves room for metaspace and native memory.
+minecraft:
+  type: FORGE
+  version: "1.20.1"
+  # Matches libraries/net/minecraftforge/forge/1.20.1-47.3.0 in the backup.
+  forgeVersion: "47.3.0"
+  eula: "TRUE"
+  initMemory: 2G
+  maxMemory: 6G
+  serverPort: 25565
+  level: world
+  difficulty: easy
+  gamemode: survival
+  maxPlayers: 20
+  viewDistance: 10
+  simulationDistance: 10
+  motd: "A Minecraft Server"
+  onlineMode: false
+  enableWhitelist: true
+  enableCommandBlock: true
+
+service:
+  type: NodePort
+  port: 25565
+  # Fixed port inside the k3s default NodePort range 30000-32767.
+  nodePort: 30565
+
+persistence:
+  size: 20Gi
+  mountPath: /data
+  storageClass: local-path
+
+resources:
+  requests:
+    cpu: "1"
+    memory: 4Gi
+  limits:
+    cpu: "4"
+    memory: 8Gi
+
+probes:
+  startup:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 90
+  readiness:
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  liveness:
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
