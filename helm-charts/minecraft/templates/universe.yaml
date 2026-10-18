@@ -35,12 +35,6 @@ spec:
               value: {{ .Values.minecraft.initMemory | quote }}
             - name: MAX_MEMORY
               value: {{ .Values.minecraft.maxMemory | quote }}
-            - name: MAX_PLAYERS
-              value: {{ .Values.minecraft.maxPlayers | quote }}
-            - name: VIEW_DISTANCE
-              value: {{ .Values.minecraft.viewDistance | quote }}
-            - name: SIMULATION_DISTANCE
-              value: {{ .Values.minecraft.simulationDistance | quote }}
             - name: MOTD
               value: {{ .Values.minecraft.motd | quote }}
             - name: ONLINE_MODE
