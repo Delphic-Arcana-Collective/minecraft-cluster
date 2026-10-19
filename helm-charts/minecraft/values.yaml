@@ -22,8 +22,8 @@ instances:
       size: 20Gi
     resources:
       requests:
-        cpu: "4"
-        memory: 6Gi
+        cpu: "2500m"
+        memory: 4Gi
       limits:
         cpu: "8"
         memory: 10Gi
@@ -43,8 +43,8 @@ instances:
       size: 20Gi
     resources:
       requests:
-        cpu: "8"
-        memory: 8Gi
+        cpu: "2500m"
+        memory: 4Gi
       limits:
         cpu: "8"
         memory: 10Gi
