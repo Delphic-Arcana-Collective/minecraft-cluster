@@ -1,19 +1,11 @@
-{{- define "minecraft.name" -}}
-{{- .Chart.Name -}}
-{{- end -}}
-
-{{- define "minecraft.fullname" -}}
-{{- .Release.Name -}}
-{{- end -}}
-
 {{- define "minecraft.labels" -}}
-app.kubernetes.io/name: {{ include "minecraft.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ .name }}
+app.kubernetes.io/instance: {{ .name }}
+app.kubernetes.io/version: {{ .root.Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .root.Release.Service }}
 {{- end -}}
 
 {{- define "minecraft.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "minecraft.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ .name }}
+app.kubernetes.io/instance: {{ .name }}
 {{- end -}}

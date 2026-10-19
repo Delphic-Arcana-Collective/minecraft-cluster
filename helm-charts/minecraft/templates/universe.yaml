@@ -1,42 +1,49 @@
+{{- range $name, $inst := .Values.instances }}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "minecraft.fullname" . }}
+  name: {{ $name }}
   labels:
-    {{- include "minecraft.labels" . | nindent 4 }}
+    {{- include "minecraft.labels" (dict "name" $name "root" $) | nindent 4 }}
 spec:
-  serviceName: {{ include "minecraft.fullname" . }}
+  serviceName: {{ $name }}
   selector:
     matchLabels:
-      {{- include "minecraft.selectorLabels" . | nindent 6 }}
+      {{- include "minecraft.selectorLabels" (dict "name" $name) | nindent 6 }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
   template:
     metadata:
       labels:
-        {{- include "minecraft.labels" . | nindent 8 }}
+        {{- include "minecraft.labels" (dict "name" $name "root" $) | nindent 8 }}
     spec:
-      # NOTE: fix volume ownership to 1000 on mismatch; especially useful 
+      # NOTE: fix volume ownership to 1000 on mismatch; especially useful
       # when importing world data from other machine.
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: minecraft
-          image: "itzg/minecraft-server:{{ .Values.image.tag }}"
+          image: "itzg/minecraft-server:{{ $inst.image.tag }}"
           env:
             - name: EULA
               value: "TRUE"
             - name: TYPE
-              value: {{ .Values.minecraft.type | quote }}
+              value: {{ $inst.type | quote }}
             - name: VERSION
-              value: {{ .Values.minecraft.version | quote }}
+              value: {{ $inst.version | quote }}
+            {{- with $inst.forgeVersion }}
             - name: FORGE_VERSION
-              value: {{ .Values.minecraft.forgeVersion | quote }}
+              value: {{ . | quote }}
+            {{- end }}
             - name: INIT_MEMORY
-              value: {{ .Values.minecraft.initMemory | quote }}
+              value: {{ $inst.initMemory | quote }}
             - name: MAX_MEMORY
-              value: {{ .Values.minecraft.maxMemory | quote }}
+              value: {{ $inst.maxMemory | quote }}
             - name: MOTD
-              value: {{ .Values.minecraft.motd | quote }}
+              value: {{ $inst.motd | quote }}
             - name: ONLINE_MODE
               value: "FALSE"
             - name: ENABLE_WHITELIST
@@ -53,6 +60,8 @@ spec:
                 - --port
                 - "25565"
             initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 60
           readinessProbe:
             exec:
               command:
@@ -72,11 +81,10 @@ spec:
                 - --port
                 - "25565"
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml $inst.resources | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /data
-              
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -86,22 +94,26 @@ spec:
         storageClassName: local-path
         resources:
           requests:
-            storage: {{ .Values.persistence.size }}
-
+            storage: {{ $inst.persistence.size }}
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "minecraft.fullname" . }}
+  name: {{ $name }}
   labels:
-    {{- include "minecraft.labels" . | nindent 4 }}
+    {{- include "minecraft.labels" (dict "name" $name "root" $) | nindent 4 }}
+  {{- with $inst.externalServerName }}
+  annotations:
+    mc-router.itzg.me/externalServerName: {{ . | quote }}
+  {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $inst.service.type }}
   selector:
-    {{- include "minecraft.selectorLabels" . | nindent 4 }}
+    {{- include "minecraft.selectorLabels" (dict "name" $name) | nindent 4 }}
   ports:
-    - name: minecraft
-      port: {{ .Values.service.port }}
+    - port: 25565
       targetPort: 25565
-      nodePort: {{ .Values.service.nodePort }}
+      {{- with $inst.service.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
+{{- end }}

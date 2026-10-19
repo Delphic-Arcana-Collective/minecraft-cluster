@@ -1,26 +1,50 @@
-image:
-  tag: java21
+router:
+  image: itzg/mc-router:1.48.0
+  service:
+    type: NodePort
+    port: 25565
+    nodePort: 30565
 
-minecraft:
-  type: FORGE
-  version: "1.20.1"
-  forgeVersion: "47.4.23"
-  initMemory: 8G
-  maxMemory: 16G
-  motd: "Main server of Delphic Arcana Collective"
-
-service:
-  type: NodePort
-  port: 25565
-  nodePort: 30565
-
-persistence:
-  size: 20Gi
-
-resources:
-  requests:
-    cpu: "8"
-    memory: 8Gi
-  limits:
-    cpu: "16"
-    memory: 16Gi
+instances:
+  forge-1201:
+    image:
+      tag: java21
+    type: FORGE
+    version: "1.20.1"
+    forgeVersion: "47.4.23"
+    initMemory: 4608M
+    maxMemory: 9G
+    motd: "Main server of Delphic Arcana Collective"
+    externalServerName: main.mc.delphic.studio
+    service:
+      type: ClusterIP
+    persistence:
+      size: 20Gi
+    resources:
+      requests:
+        cpu: "4"
+        memory: 6Gi
+      limits:
+        cpu: "8"
+        memory: 10Gi
+  forge-47-4-28:
+    image:
+      tag: java21
+    type: FORGE
+    version: "1.20.1"
+    forgeVersion: "47.4.28"
+    initMemory: 4608M
+    maxMemory: 9G
+    motd: "isekai.mc.delphic.studio"
+    externalServerName: isekai.mc.delphic.studio
+    service:
+      type: ClusterIP
+    persistence:
+      size: 20Gi
+    resources:
+      requests:
+        cpu: "8"
+        memory: 8Gi
+      limits:
+        cpu: "8"
+        memory: 10Gi
