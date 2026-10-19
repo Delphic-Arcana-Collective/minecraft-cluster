@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy
+data:
+  envoy.yaml: |
+    static_resources:
+      listeners:
+        - name: ingress
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: {{ .Values.envoy.service.port }}
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    stat_prefix: ingress
+                    route_config:
+                      name: local
+                      virtual_hosts:
+                        - name: ingress
+                          domains: ["*"]
+                          routes:
+                            - match:
+                                prefix: /grafana
+                              route:
+                                cluster: grafana
+                                timeout: 0s
+                    http_filters:
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+      clusters:
+        - name: grafana
+          type: STRICT_DNS
+          connect_timeout: 5s
+          load_assignment:
+            cluster_name: grafana
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ .Values.envoy.grafana.host }}
+                          port_value: {{ .Values.envoy.grafana.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+  labels:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/instance: envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy
+      app.kubernetes.io/instance: envoy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: envoy
+        app.kubernetes.io/instance: envoy
+    spec:
+      containers:
+        - name: envoy
+          image: {{ .Values.envoy.image }}
+          args: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info"]
+          ports:
+            - containerPort: {{ .Values.envoy.service.port }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.envoy.service.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/envoy
+      volumes:
+        - name: config
+          configMap:
+            name: envoy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy
+  labels:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/instance: envoy
+spec:
+  type: {{ .Values.envoy.service.type }}
+  selector:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/instance: envoy
+  ports:
+    - port: {{ .Values.envoy.service.port }}
+      targetPort: {{ .Values.envoy.service.port }}
+      nodePort: {{ .Values.envoy.service.nodePort }}

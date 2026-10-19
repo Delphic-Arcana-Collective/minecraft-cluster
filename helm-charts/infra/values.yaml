@@ -1,0 +1,9 @@
+envoy:
+  image: envoyproxy/envoy:v1.32.3
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30010
+  grafana:
+    host: grafana.infra.svc.cluster.local
+    port: 80

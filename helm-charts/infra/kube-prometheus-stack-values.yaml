@@ -1,0 +1,95 @@
+alertmanager:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+defaultRules:
+  rules:
+    alertmanager: false
+    etcd: false
+    kubeControllerManager: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeProxy: false
+    windows: false
+
+kube-state-metrics:
+  metricLabelsAllowlist:
+    - pods=[*]
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 64Mi
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    retentionSize: 2GB
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 768Mi
+    storageSpec:
+      emptyDir: {}
+
+grafana:
+  fullnameOverride: grafana
+  adminUser: admin
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 1Gi
+  grafana.ini:
+    server:
+      domain: server.delphic.studio
+      root_url: "%(protocol)s://%(domain)s:24010/grafana/"
+      serve_from_sub_path: true
+  readinessProbe:
+    httpGet:
+      path: /grafana/api/health
+      port: grafana
+  livenessProbe:
+    httpGet:
+      path: /grafana/api/health
+      port: grafana
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 10
+  serviceMonitor:
+    path: /grafana/metrics
+  sidecar:
+    datasources:
+      alertmanager:
+        enabled: false
+      reloadURL: http://localhost:3000/grafana/api/admin/provisioning/datasources/reload
+    dashboards:
+      reloadURL: http://localhost:3000/grafana/api/admin/provisioning/dashboards/reload

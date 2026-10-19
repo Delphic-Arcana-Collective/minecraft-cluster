@@ -13,7 +13,7 @@ instances:
     version: "1.20.1"
     forgeVersion: "47.4.23"
     initMemory: 4608M
-    maxMemory: 9G
+    maxMemory: 5G
     motd: "Main server of Delphic Arcana Collective"
     externalServerName: main.mc.delphic.studio
     service:
@@ -25,8 +25,8 @@ instances:
         cpu: "2500m"
         memory: 4Gi
       limits:
-        cpu: "8"
-        memory: 8Gi
+        cpu: "4"
+        memory: 6Gi
   forge-47-4-28:
     image:
       tag: java21
@@ -46,6 +46,6 @@ instances:
         cpu: "4"
         memory: 8Gi
       limits:
-        cpu: "8"
+        cpu: "6"
         memory: 8Gi
         
