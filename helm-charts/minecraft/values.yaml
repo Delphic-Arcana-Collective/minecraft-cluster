@@ -26,7 +26,7 @@ instances:
         memory: 4Gi
       limits:
         cpu: "8"
-        memory: 10Gi
+        memory: 8Gi
   forge-47-4-28:
     image:
       tag: java21
@@ -43,8 +43,9 @@ instances:
       size: 20Gi
     resources:
       requests:
-        cpu: "2500m"
-        memory: 4Gi
+        cpu: "4"
+        memory: 8Gi
       limits:
         cpu: "8"
-        memory: 10Gi
+        memory: 8Gi
+        
