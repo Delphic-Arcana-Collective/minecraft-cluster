@@ -19,8 +19,8 @@
 | 项 | 值 |
 | --- | --- |
 | 镜像 | `itzg/minecraft-server` |
-| 文档 | https://docker-minecraft-server.readthedocs.io |
-| 仓库 | https://github.com/itzg/docker-minecraft-server |
+| 文档 | <https://docker-minecraft-server.readthedocs.io> |
+| 仓库 | <https://github.com/itzg/docker-minecraft-server> |
 | 数据目录 | 容器内 `/data`，世界、模组、插件都在这里 |
 | 游戏端口 | TCP `25565` |
 | 健康检查 | 镜像自带 `mc-monitor status` |

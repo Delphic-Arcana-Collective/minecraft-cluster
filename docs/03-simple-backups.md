@@ -13,7 +13,7 @@ CurseForge 主页：<https://www.curseforge.com/minecraft/mc-mods/simple-backups
 
 1. 本机下载 jar（走代理）：
 
-   ```
+   ```bash
    https://mediafilez.forgecdn.net/files/7151/898/SimpleBackups-1.20.1-3.1.18.jar
    ```
 
