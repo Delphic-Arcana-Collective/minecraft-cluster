@@ -23,9 +23,10 @@
 这些都是启动时处理，不在构建镜像时写进层里。
 
 来源：
-- https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/index.md
-- https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/modrinth.md
-- https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/curseforge-files.md
+
+- <https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/index.md>
+- <https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/modrinth.md>
+- <https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/curseforge-files.md>
 
 ## 钉住文件或版本
 
@@ -50,4 +51,4 @@
 
 同一份镜像靠 `TYPE` 切换后端，不是靠 tag。
 
-https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/index.md
+<https://github.com/itzg/docker-minecraft-server/blob/master/docs/mods-and-plugins/index.md>
